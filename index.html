@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0e14" />
-    <meta name="description" content="Real-time currency converter with crypto CEX vibes" />
+    <meta name="description" content="Konverter mata uang real-time dengan tampilan crypto CEX" />
     <title>KURS // CONVERTER</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -12,29 +12,36 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💱</text></svg>" />
   </head>
   <body>
+    <!-- TICKER -->
     <div class="ticker-bar">
-      <div class="ticker-track" id="ticker">Loading rates...</div>
+      <div class="ticker-track" id="ticker">Memuat kurs...</div>
     </div>
 
     <main>
       <div class="card">
+
+        <!-- HEADER -->
         <div class="card-header">
           <div class="logo-row">
             <span class="logo">💱</span>
             <div>
               <h1>KURS <span class="accent">// CONVERTER</span></h1>
-              <p class="tagline">REAL-TIME EXCHANGE RATE</p>
+              <p class="tagline">NILAI TUKAR MATA UANG REAL-TIME</p>
             </div>
           </div>
         </div>
 
+        <!-- FORM -->
         <div class="form">
+
+          <!-- JUMLAH -->
           <div class="input-group">
-            <label>AMOUNT</label>
+            <label>JUMLAH</label>
             <input type="number" id="amount" placeholder="0.00" value="100000" min="0" inputmode="decimal" />
             <span class="amount-display" id="amountDisplay"></span>
           </div>
 
+          <!-- PRESET -->
           <div class="preset-row">
             <button class="preset-btn" data-val="10000">10K</button>
             <button class="preset-btn" data-val="100000">100K</button>
@@ -43,37 +50,49 @@
             <button class="preset-btn" data-val="100000000">100M</button>
           </div>
 
+          <!-- PASANGAN MATA UANG -->
           <div class="pair-row">
-            <div class="input-group">
-              <label>FROM</label>
-              <select id="from"></select>
+            <div class="input-group dropdown-wrap">
+              <label>DARI</label>
+              <input class="dropdown-input" id="fromInput" placeholder="Cari mata uang..." autocomplete="off" />
+              <ul class="dropdown-list" id="fromList" hidden></ul>
             </div>
-            <button class="swap-btn" id="swapBtn" title="Swap currencies">⇄</button>
-            <div class="input-group">
-              <label>TO</label>
-              <select id="to"></select>
+
+            <button class="swap-btn" id="swapBtn" title="Tukar (S)">⇄</button>
+
+            <div class="input-group dropdown-wrap">
+              <label>KE</label>
+              <input class="dropdown-input" id="toInput" placeholder="Cari mata uang..." autocomplete="off" />
+              <ul class="dropdown-list" id="toList" hidden></ul>
             </div>
           </div>
 
-          <button class="convert-btn" id="convertBtn">CONVERT</button>
+          <button class="convert-btn" id="convertBtn">KONVERSI</button>
+          <p class="shortcut-hint">Tekan <kbd>Enter</kbd> untuk konversi &nbsp;·&nbsp; <kbd>S</kbd> untuk tukar &nbsp;·&nbsp; <kbd>C</kbd> untuk salin</p>
         </div>
 
+        <!-- HASIL -->
         <div class="result" id="result" hidden>
-          <div class="result-label">RESULT</div>
+          <div class="result-top">
+            <span class="result-label">HASIL KONVERSI</span>
+            <span class="rate-badge" id="rateBadge" hidden></span>
+          </div>
           <div class="result-from" id="resultFrom"></div>
           <div class="result-value" id="resultValue">—</div>
           <div class="result-rate" id="resultRate"></div>
+          <div class="result-reverse" id="resultReverse"></div>
           <div class="result-time" id="resultTime"></div>
           <div class="result-actions">
-            <button class="action-btn" id="copyBtn">⧉ COPY</button>
-            <button class="action-btn" id="shareBtn">↗ SHARE</button>
-            <button class="action-btn" id="favBtn">☆ FAV</button>
-            <button class="action-btn" id="multiBtn">◈ MULTI</button>
+            <button class="action-btn" id="copyBtn">⧉ SALIN</button>
+            <button class="action-btn" id="shareBtn">↗ BAGIKAN</button>
+            <button class="action-btn" id="favBtn">☆ FAVORIT</button>
+            <button class="action-btn" id="multiBtn">◈ SEMUA KURS</button>
           </div>
         </div>
 
+        <!-- SEMUA KURS -->
         <div class="multi-view" id="multiView" hidden>
-          <div class="multi-label">ALL RATES</div>
+          <div class="multi-label">SEMUA NILAI TUKAR</div>
           <div class="multi-scroll">
             <table class="multi-table">
               <tbody id="multiBody"></tbody>
@@ -81,17 +100,19 @@
           </div>
         </div>
 
+        <!-- RIWAYAT -->
         <div class="history-box">
           <div class="history-header">
-            <span class="history-label">RECENT</span>
-            <button class="clear-btn" id="clearHistBtn" hidden>CLEAR</button>
+            <span class="history-label">RIWAYAT</span>
+            <button class="clear-btn" id="clearHistBtn" hidden>HAPUS</button>
           </div>
           <ul class="history-list" id="historyList"></ul>
         </div>
+
       </div>
 
       <footer>
-        <span>POWERED BY EXCHANGERATE-API</span>
+        <span>SUMBER DATA: EXCHANGERATE-API</span>
         <span id="statusDot" class="dot dot--green"></span>
         <span id="statusText">LIVE</span>
       </footer>

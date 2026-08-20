@@ -38,25 +38,81 @@ const CURRENCIES = [
 const $ = id => document.getElementById(id);
 let rates = {};
 let lastBase = '';
+let lastRate = null;
 
-function populateSelects() {
-  ['from','to'].forEach(id => {
-    const sel = $(id);
-    CURRENCIES.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.code;
-      opt.textContent = `${c.flag} ${c.code} — ${c.name}`;
-      sel.appendChild(opt);
-    });
+// ─── CURRENCY SEARCH DROPDOWN ───
+function buildSearchDropdown(inputId, selectId) {
+  const input = $(inputId);
+  const list  = $(selectId);
+
+  function render(query) {
+    const q = query.toLowerCase();
+    const filtered = CURRENCIES.filter(c =>
+      c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+    );
+    list.innerHTML = filtered.map(c =>
+      `<li data-code="${c.code}">${c.flag} <strong>${c.code}</strong> — ${c.name}</li>`
+    ).join('');
+  }
+
+  function setValue(code) {
+    const c = CURRENCIES.find(x => x.code === code);
+    if (!c) return;
+    input.value = `${c.flag} ${c.code} — ${c.name}`;
+    input.dataset.code = code;
+    list.hidden = true;
+    renderFavBtn();
+    if ($('amount').value) convert();
+  }
+
+  input.addEventListener('focus', () => {
+    input.value = '';
+    input.dataset.code = input.dataset.code || '';
+    render('');
+    list.hidden = false;
   });
-  $('from').value = 'IDR';
-  $('to').value = 'USD';
+
+  input.addEventListener('input', () => {
+    render(input.value);
+    list.hidden = false;
+  });
+
+  list.addEventListener('click', e => {
+    const li = e.target.closest('li');
+    if (li) setValue(li.dataset.code);
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      // restore label if user clicks away without selecting
+      const code = input.dataset.code;
+      if (code) setValue(code);
+      list.hidden = true;
+    }
+  });
+
+  // expose setter
+  input._setValue = setValue;
+  return { setValue };
 }
+
+let fromDrop, toDrop;
+
+function initDropdowns() {
+  fromDrop = buildSearchDropdown('fromInput', 'fromList');
+  toDrop   = buildSearchDropdown('toInput',   'toList');
+  fromDrop.setValue('IDR');
+  toDrop.setValue('USD');
+}
+
+function getFrom() { return $('fromInput').dataset.code; }
+function getTo()   { return $('toInput').dataset.code; }
 
 function getCurrencyInfo(code) {
   return CURRENCIES.find(c => c.code === code) || { code, flag: '🏳️', name: code };
 }
 
+// ─── FETCH ───
 async function fetchRates(base) {
   if (lastBase === base && Object.keys(rates).length) return rates;
   const res = await fetch(API + base);
@@ -67,23 +123,23 @@ async function fetchRates(base) {
   return rates;
 }
 
+// ─── TICKER ───
 async function loadTicker() {
   try {
     const usdRates = await fetchRates('USD');
     lastBase = ''; rates = {};
     const pairs = ['IDR','EUR','SGD','JPY','GBP','MYR','AUD','KRW','THB','CNY','INR','BRL'];
-    const text = pairs
-      .map(c => {
-        const info = getCurrencyInfo(c);
-        return `${info.flag} USD/${c} ${usdRates[c].toLocaleString('en-US', { maximumFractionDigits: 4 })}`;
-      })
-      .join('     ');
+    const text = pairs.map(c => {
+      const info = getCurrencyInfo(c);
+      return `${info.flag} USD/${c} ${usdRates[c].toLocaleString('en-US', { maximumFractionDigits: 4 })}`;
+    }).join('     ');
     $('ticker').textContent = text + '     ' + text;
   } catch {
     $('ticker').textContent = 'RATE DATA UNAVAILABLE';
   }
 }
 
+// ─── AMOUNT DISPLAY ───
 function formatAmountDisplay() {
   const num = parseFloat($('amount').value);
   $('amountDisplay').textContent = (!isNaN(num) && num > 0) ? num.toLocaleString('en-US') : '';
@@ -95,14 +151,19 @@ function setPreset(val) {
   convert();
 }
 
-function animateCount(el, target, suffix, decimals) {
+// ─── ANIMATE COUNT ───
+function animateCount(el, target, suffix, decimals, direction) {
   const duration = 700;
   const start = performance.now();
+  // direction: 'up' | 'down' | null
+  if (direction) {
+    el.dataset.dir = direction;
+    setTimeout(() => { delete el.dataset.dir; }, 1200);
+  }
   function step(now) {
     const progress = Math.min((now - start) / duration, 1);
     const ease = 1 - Math.pow(1 - progress, 3);
-    const val = target * ease;
-    el.textContent = val.toLocaleString('en-US', {
+    el.textContent = (target * ease).toLocaleString('en-US', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }) + ' ' + suffix;
@@ -111,26 +172,32 @@ function animateCount(el, target, suffix, decimals) {
   requestAnimationFrame(step);
 }
 
+// ─── CONVERT ───
 async function convert() {
   const amount = parseFloat($('amount').value);
-  const from = $('from').value;
-  const to = $('to').value;
-  if (!amount || amount <= 0) { $('amount').focus(); return; }
+  const from   = getFrom();
+  const to     = getTo();
+  if (!amount || amount <= 0 || !from || !to) { $('amount').focus(); return; }
 
   const btn = $('convertBtn');
   btn.disabled = true;
-  btn.textContent = 'FETCHING...';
+  btn.textContent = 'MENGAMBIL DATA...';
   $('result').hidden = false;
   $('resultValue').textContent = '—';
   $('resultValue').classList.add('loading');
 
   try {
-    const r = await fetchRates(from);
-    const rate = r[to];
+    const r      = await fetchRates(from);
+    const rate   = r[to];
     const result = amount * rate;
     const decimals = result >= 1 ? 2 : 6;
     const fromInfo = getCurrencyInfo(from);
-    const toInfo = getCurrencyInfo(to);
+    const toInfo   = getCurrencyInfo(to);
+
+    // direction highlight
+    let direction = null;
+    if (lastRate !== null) direction = rate > lastRate ? 'up' : rate < lastRate ? 'down' : null;
+    lastRate = rate;
 
     const resultEl = $('result');
     resultEl.style.animation = 'none';
@@ -138,10 +205,27 @@ async function convert() {
     resultEl.style.animation = '';
 
     $('resultValue').classList.remove('loading');
-    animateCount($('resultValue'), result, toInfo.code, decimals);
+    animateCount($('resultValue'), result, toInfo.code, decimals, direction);
 
     $('resultFrom').textContent = `${fromInfo.flag} ${amount.toLocaleString('en-US')} ${from}`;
     $('resultRate').textContent = `1 ${from} = ${rate.toLocaleString('en-US', { maximumFractionDigits: 6 })} ${to}`;
+
+    // konversi balik
+    const reverseRate   = r[to] ? 1 / rate : 0;
+    const reverseResult = 1 * (1 / rate);
+    const revDec = reverseResult >= 1 ? 2 : 6;
+    $('resultReverse').textContent =
+      `1 ${to} = ${(1/rate).toLocaleString('en-US', { maximumFractionDigits: revDec })} ${from}`;
+
+    // direction badge
+    const badge = $('rateBadge');
+    if (direction) {
+      badge.textContent = direction === 'up' ? '▲ NAIK' : '▼ TURUN';
+      badge.dataset.dir = direction;
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
 
     const now = new Date();
     $('resultTime').textContent = now.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
@@ -155,7 +239,7 @@ async function convert() {
     $('resultValue').textContent = 'ERROR';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'CONVERT';
+    btn.textContent = 'KONVERSI';
   }
 }
 
@@ -164,29 +248,32 @@ function setStatus(ok) {
   $('statusText').textContent = ok ? 'LIVE' : 'OFFLINE';
 }
 
+// ─── SWAP ───
 function swapCurrencies() {
   $('swapBtn').classList.add('spinning');
   setTimeout(() => $('swapBtn').classList.remove('spinning'), 300);
-  const tmp = $('from').value;
-  $('from').value = $('to').value;
-  $('to').value = tmp;
-  renderFavBtn();
+  const tmp = getFrom();
+  fromDrop.setValue(getTo());
+  toDrop.setValue(tmp);
+  lastRate = null;
   if ($('amount').value) convert();
 }
 
+// ─── COPY ───
 async function copyResult() {
-  const val = $('resultValue').textContent;
+  const val  = $('resultValue').textContent;
   const rate = $('resultRate').textContent;
   if (!val || val === '—') return;
   try {
     await navigator.clipboard.writeText(`${val} (${rate})`);
-    $('copyBtn').textContent = '✓ COPIED';
-    setTimeout(() => { $('copyBtn').textContent = '⧉ COPY'; }, 1500);
+    $('copyBtn').textContent = '✓ TERSALIN';
+    setTimeout(() => { $('copyBtn').textContent = '⧉ SALIN'; }, 1500);
   } catch {}
 }
 
+// ─── SHARE ───
 async function shareResult() {
-  const val = $('resultValue').textContent;
+  const val  = $('resultValue').textContent;
   const rate = $('resultRate').textContent;
   const from = $('resultFrom').textContent;
   if (!navigator.share) { copyResult(); return; }
@@ -199,6 +286,7 @@ async function shareResult() {
   } catch {}
 }
 
+// ─── HISTORY ───
 function getHistory() { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
 
 function saveHistory(entry) {
@@ -218,7 +306,7 @@ function renderHistory() {
   const el = $('historyList');
   const clearBtn = $('clearHistBtn');
   if (!h.length) {
-    el.innerHTML = '<li class="empty">NO HISTORY YET</li>';
+    el.innerHTML = '<li class="empty">BELUM ADA RIWAYAT</li>';
     clearBtn.hidden = true;
     return;
   }
@@ -226,24 +314,25 @@ function renderHistory() {
   el.innerHTML = h.map((e, i) => {
     const fi = getCurrencyInfo(e.from);
     const ti = getCurrencyInfo(e.to);
-    return `<li class="hist-item"><span class="hist-pair">${fi.flag} ${e.from} → ${ti.flag} ${e.to}</span><span class="hist-val">${Number(e.amount).toLocaleString()} = ${Number(e.result).toLocaleString('en-US', { maximumFractionDigits: 4 })}</span><button class="hist-reuse" data-i="${i}" title="Reuse">↺</button></li>`;
+    return `<li class="hist-item"><span class="hist-pair">${fi.flag} ${e.from} → ${ti.flag} ${e.to}</span><span class="hist-val">${Number(e.amount).toLocaleString()} = ${Number(e.result).toLocaleString('en-US', { maximumFractionDigits: 4 })}</span><button class="hist-reuse" data-i="${i}" title="Gunakan lagi">↺</button></li>`;
   }).join('');
   el.querySelectorAll('.hist-reuse').forEach(btn => {
     btn.addEventListener('click', () => {
       const e = getHistory()[+btn.dataset.i];
       $('amount').value = e.amount;
-      $('from').value = e.from;
-      $('to').value = e.to;
+      fromDrop.setValue(e.from);
+      toDrop.setValue(e.to);
       formatAmountDisplay();
       convert();
     });
   });
 }
 
+// ─── FAVORIT ───
 function getFav() { return JSON.parse(localStorage.getItem(FAV_KEY) || 'null'); }
 
 function saveFav() {
-  localStorage.setItem(FAV_KEY, JSON.stringify({ from: $('from').value, to: $('to').value }));
+  localStorage.setItem(FAV_KEY, JSON.stringify({ from: getFrom(), to: getTo() }));
   renderFavBtn();
   $('favBtn').classList.add('fav-pop');
   setTimeout(() => $('favBtn').classList.remove('fav-pop'), 300);
@@ -251,30 +340,31 @@ function saveFav() {
 
 function renderFavBtn() {
   const fav = getFav();
-  const cur = { from: $('from').value, to: $('to').value };
-  $('favBtn').textContent = (fav && fav.from === cur.from && fav.to === cur.to) ? '★ SAVED' : '☆ FAV';
+  const isSaved = fav && fav.from === getFrom() && fav.to === getTo();
+  $('favBtn').textContent = isSaved ? '★ TERSIMPAN' : '☆ FAVORIT';
 }
 
 function loadFav() {
   const fav = getFav();
   if (!fav) return;
-  $('from').value = fav.from;
-  $('to').value = fav.to;
+  fromDrop.setValue(fav.from);
+  toDrop.setValue(fav.to);
 }
 
+// ─── MULTI VIEW ───
 function toggleMulti() {
-  const el = $('multiView');
+  const el  = $('multiView');
   const btn = $('multiBtn');
   el.hidden = !el.hidden;
-  btn.textContent = el.hidden ? '◈ MULTI' : '✕ CLOSE';
+  btn.textContent = el.hidden ? '◈ SEMUA KURS' : '✕ TUTUP';
   if (!el.hidden) renderMulti();
 }
 
 async function renderMulti() {
   const amount = parseFloat($('amount').value) || 1;
-  const from = $('from').value;
-  const el = $('multiBody');
-  el.innerHTML = '<tr><td colspan="3" class="empty">LOADING...</td></tr>';
+  const from   = getFrom();
+  const el     = $('multiBody');
+  el.innerHTML = '<tr><td colspan="3" class="empty">MEMUAT...</td></tr>';
   try {
     const r = await fetchRates(from);
     el.innerHTML = CURRENCIES
@@ -285,10 +375,19 @@ async function renderMulti() {
         return `<tr><td class="multi-flag">${c.flag}</td><td class="multi-code">${c.code}</td><td class="multi-val">${result.toLocaleString('en-US', { maximumFractionDigits: dec })}</td></tr>`;
       }).join('');
   } catch {
-    el.innerHTML = '<tr><td colspan="3" class="empty">ERROR LOADING</td></tr>';
+    el.innerHTML = '<tr><td colspan="3" class="empty">GAGAL MEMUAT</td></tr>';
   }
 }
 
+// ─── KEYBOARD SHORTCUTS ───
+document.addEventListener('keydown', e => {
+  if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === 's' || e.key === 'S') swapCurrencies();
+  if (e.key === 'c' || e.key === 'C') copyResult();
+  if (e.key === 'Enter') convert();
+});
+
+// ─── EVENT LISTENERS ───
 $('swapBtn').addEventListener('click', swapCurrencies);
 $('amount').addEventListener('input', formatAmountDisplay);
 $('amount').addEventListener('keydown', e => { if (e.key === 'Enter') convert(); });
@@ -303,14 +402,8 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
   btn.addEventListener('click', () => setPreset(+btn.dataset.val));
 });
 
-['from','to'].forEach(id => {
-  $(id).addEventListener('change', () => {
-    renderFavBtn();
-    if ($('amount').value) convert();
-  });
-});
-
-populateSelects();
+// ─── INIT ───
+initDropdowns();
 loadFav();
 renderFavBtn();
 formatAmountDisplay();
