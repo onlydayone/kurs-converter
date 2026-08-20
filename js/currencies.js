@@ -1,0 +1,36 @@
+export const CURRENCIES = [
+  { code: 'IDR', flag: '🇮🇩', name: 'Indonesian Rupiah' },
+  { code: 'USD', flag: '🇺🇸', name: 'US Dollar' },
+  { code: 'EUR', flag: '🇪🇺', name: 'Euro' },
+  { code: 'GBP', flag: '🇬🇧', name: 'British Pound' },
+  { code: 'JPY', flag: '🇯🇵', name: 'Japanese Yen' },
+  { code: 'SGD', flag: '🇸🇬', name: 'Singapore Dollar' },
+  { code: 'MYR', flag: '🇲🇾', name: 'Malaysian Ringgit' },
+  { code: 'AUD', flag: '🇦🇺', name: 'Australian Dollar' },
+  { code: 'CAD', flag: '🇨🇦', name: 'Canadian Dollar' },
+  { code: 'CHF', flag: '🇨🇭', name: 'Swiss Franc' },
+  { code: 'CNY', flag: '🇨🇳', name: 'Chinese Yuan' },
+  { code: 'HKD', flag: '🇭🇰', name: 'Hong Kong Dollar' },
+  { code: 'KRW', flag: '🇰🇷', name: 'South Korean Won' },
+  { code: 'THB', flag: '🇹🇭', name: 'Thai Baht' },
+  { code: 'INR', flag: '🇮🇳', name: 'Indian Rupee' },
+  { code: 'SAR', flag: '🇸🇦', name: 'Saudi Riyal' },
+  { code: 'AED', flag: '🇦🇪', name: 'UAE Dirham' },
+  { code: 'BRL', flag: '🇧🇷', name: 'Brazilian Real' },
+  { code: 'MXN', flag: '🇲🇽', name: 'Mexican Peso' },
+  { code: 'NZD', flag: '🇳🇿', name: 'New Zealand Dollar' },
+  { code: 'PHP', flag: '🇵🇭', name: 'Philippine Peso' },
+  { code: 'TWD', flag: '🇹🇼', name: 'Taiwan Dollar' },
+  { code: 'SEK', flag: '🇸🇪', name: 'Swedish Krona' },
+  { code: 'NOK', flag: '🇳🇴', name: 'Norwegian Krone' },
+  { code: 'DKK', flag: '🇩🇰', name: 'Danish Krone' },
+  { code: 'PLN', flag: '🇵🇱', name: 'Polish Zloty' },
+  { code: 'TRY', flag: '🇹🇷', name: 'Turkish Lira' },
+  { code: 'ZAR', flag: '🇿🇦', name: 'South African Rand' },
+  { code: 'RUB', flag: '🇷🇺', name: 'Russian Ruble' },
+  { code: 'VND', flag: '🇻🇳', name: 'Vietnamese Dong' },
+];
+
+export function getCurrencyInfo(code) {
+  return CURRENCIES.find(c => c.code === code) || { code, flag: '🏳️', name: code };
+}

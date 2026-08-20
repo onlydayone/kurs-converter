@@ -1,0 +1,83 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0a0e14;
+  --bg2: #0d1117;
+  --card: #111927;
+  --card2: #161f2e;
+  --border: #1e3a2f;
+  --accent: #00ff88;
+  --accent-dim: rgba(0, 255, 136, 0.12);
+  --accent2: #00c9ff;
+  --text: #e0ffe8;
+  --muted: #4a7a5a;
+  --danger: #ff4466;
+  --up: #00ff88;
+  --down: #ff4466;
+  --font: 'Space Mono', monospace;
+  --radius: 12px;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  width: 100%;
+  max-width: 520px;
+}
+
+footer {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  padding-bottom: 1rem;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot--green {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s infinite;
+}
+
+.dot--red {
+  background: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
