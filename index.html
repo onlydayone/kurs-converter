@@ -1,48 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0e14" />
-    <meta name="description" content="Konverter mata uang real-time dengan tampilan crypto CEX" />
-    <title>KURS // CONVERTER</title>
+    <meta
+      name="description"
+      content="Konverter mata uang Fiat & Crypto real-time dengan chart interaktif TradingView bergaya Web3 CEX terminal."
+    />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://onlydayone.github.io/kurs-converter/"
+    />
+    <meta
+      property="og:title"
+      content="KURS // CONVERTER — Web3 Crypto & Forex Terminal"
+    />
+    <meta
+      property="og:description"
+      content="Konversi 30+ mata uang dunia & kripto (BTC, ETH, SOL) real-time dengan live chart TradingView."
+    />
+    <meta
+      property="og:image"
+      content="https://onlydayone.github.io/kurs-converter/preview.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://onlydayone.github.io/kurs-converter/"
+    />
+    <meta
+      property="twitter:title"
+      content="KURS // CONVERTER — Web3 Crypto & Forex Terminal"
+    />
+    <meta
+      property="twitter:description"
+      content="Konversi 30+ mata uang dunia & kripto real-time dengan live chart interaktif."
+    />
+    <meta
+      property="twitter:image"
+      content="https://onlydayone.github.io/kurs-converter/preview.png"
+    />
+
+    <!-- PWA Manifest & App Icons -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="KURS // CEX" />
+
+    <title>KURS // CONVERTER — Web3 Crypto & Forex Terminal</title>
+
+    <!-- Fonts & Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- TradingView Lightweight Charts Library -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💱</text></svg>" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💱</text></svg>"
+    />
   </head>
   <body>
-    <!-- TICKER -->
+    <!-- WEB3 TOP BAR / TICKER -->
     <div class="ticker-bar">
-      <div class="ticker-track" id="ticker">Memuat kurs...</div>
+      <div class="ticker-track" id="ticker">Memuat kurs live...</div>
     </div>
 
     <main>
-      <div class="card">
-
+      <div class="card terminal-card">
         <!-- HEADER -->
         <div class="card-header">
           <div class="logo-row">
-            <span class="logo">💱</span>
+            <span class="logo">⚡</span>
             <div>
+              <div class="brand-badge">WEB3 // CEX TERMINAL</div>
               <h1>KURS <span class="accent">// CONVERTER</span></h1>
-              <p class="tagline">NILAI TUKAR MATA UANG REAL-TIME</p>
             </div>
+          </div>
+          <div class="header-tags">
+            <span class="live-pill"
+              ><span class="pulse-dot"></span> LIVE FEED</span
+            >
           </div>
         </div>
 
-        <!-- FORM -->
+        <!-- FORM CONVERTER -->
         <div class="form">
-
           <!-- JUMLAH -->
           <div class="input-group">
-            <label>JUMLAH</label>
-            <input type="number" id="amount" placeholder="0.00" value="100000" min="0" inputmode="decimal" />
-            <span class="amount-display" id="amountDisplay"></span>
+            <div class="input-label-row">
+              <label>NOMINAL TRANSAKSI</label>
+              <span class="amount-display" id="amountDisplay"></span>
+            </div>
+            <div class="input-wrapper">
+              <input
+                type="number"
+                id="amount"
+                placeholder="0.00"
+                value="100000"
+                min="0"
+                step="any"
+                inputmode="decimal"
+              />
+              <button class="clear-input-btn" id="clearAmountBtn" title="Reset">
+                ×
+              </button>
+            </div>
           </div>
 
-          <!-- PRESET -->
+          <!-- PRESET CEPAT -->
           <div class="preset-row">
             <button class="preset-btn" data-val="10000">10K</button>
             <button class="preset-btn" data-val="100000">100K</button>
@@ -51,31 +132,49 @@
             <button class="preset-btn" data-val="100000000">100M</button>
           </div>
 
-          <!-- PASANGAN MATA UANG -->
+          <!-- PASANGAN MATA UANG & KRIPTO -->
           <div class="pair-row">
             <div class="input-group dropdown-wrap">
-              <label>DARI</label>
-              <input class="dropdown-input" id="fromInput" placeholder="Cari mata uang..." autocomplete="off" />
+              <label>DARI (FROM)</label>
+              <input
+                class="dropdown-input"
+                id="fromInput"
+                placeholder="Cari Fiat / Kripto..."
+                autocomplete="off"
+              />
               <ul class="dropdown-list" id="fromList" hidden></ul>
             </div>
 
-            <button class="swap-btn" id="swapBtn" title="Tukar (S)">⇄</button>
+            <button class="swap-btn" id="swapBtn" title="Tukar Posisi (S)">
+              ⇄
+            </button>
 
             <div class="input-group dropdown-wrap">
-              <label>KE</label>
-              <input class="dropdown-input" id="toInput" placeholder="Cari mata uang..." autocomplete="off" />
+              <label>KE (TO)</label>
+              <input
+                class="dropdown-input"
+                id="toInput"
+                placeholder="Cari Fiat / Kripto..."
+                autocomplete="off"
+              />
               <ul class="dropdown-list" id="toList" hidden></ul>
             </div>
           </div>
 
-          <button class="convert-btn" id="convertBtn">KONVERSI</button>
-          <p class="shortcut-hint">Tekan <kbd>Enter</kbd> untuk konversi &nbsp;·&nbsp; <kbd>S</kbd> untuk tukar &nbsp;·&nbsp; <kbd>C</kbd> untuk salin</p>
+          <button class="convert-btn" id="convertBtn">
+            <span>KONVERSI SEKARANG</span>
+            <span class="btn-glow"></span>
+          </button>
+          <p class="shortcut-hint">
+            Pintasan: <kbd>Enter</kbd> Konversi &nbsp;·&nbsp; <kbd>S</kbd> Tukar
+            &nbsp;·&nbsp; <kbd>C</kbd> Salin
+          </p>
         </div>
 
-        <!-- HASIL -->
+        <!-- HASIL KONVERSI -->
         <div class="result" id="result" hidden>
           <div class="result-top">
-            <span class="result-label">HASIL KONVERSI</span>
+            <span class="result-label">ESTIMASI EKSEKUSI</span>
             <span class="rate-badge" id="rateBadge" hidden></span>
           </div>
           <div class="result-from" id="resultFrom"></div>
@@ -83,17 +182,71 @@
           <div class="result-rate" id="resultRate"></div>
           <div class="result-reverse" id="resultReverse"></div>
           <div class="result-time" id="resultTime"></div>
+
           <div class="result-actions">
-            <button class="action-btn" id="copyBtn">⧉ SALIN</button>
-            <button class="action-btn" id="shareBtn">↗ BAGIKAN</button>
+            <button class="action-btn" id="copyBtn">⧉ SALIN HASIL</button>
+            <button class="action-btn" id="shareBtn">↗ BAGIKAN LINK</button>
             <button class="action-btn" id="favBtn">☆ FAVORIT</button>
-            <button class="action-btn" id="multiBtn">◈ SEMUA KURS</button>
+            <button class="action-btn" id="multiBtn">◈ MULTI-KURS</button>
           </div>
         </div>
 
-        <!-- SEMUA KURS -->
+        <!-- TRADINGVIEW INTERACTIVE CHART SECTION -->
+        <div class="chart-section" id="chartSection">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <span class="chart-icon">📈</span>
+              <span class="chart-title">TREN HARGA PASAR</span>
+              <span class="chart-status" id="chartStatus">USD/IDR · 30D</span>
+            </div>
+
+            <!-- Timeframe Pills -->
+            <div class="timeframe-group">
+              <button class="tf-btn" data-tf="24H">24H</button>
+              <button class="tf-btn" data-tf="7D">7D</button>
+              <button class="tf-btn active" data-tf="30D">30D</button>
+              <button class="tf-btn" data-tf="1Y">1Y</button>
+            </div>
+          </div>
+
+          <!-- Market Stats Ribbon (CEX Style) -->
+          <div class="market-stats-ribbon">
+            <div class="stat-item">
+              <span class="stat-label">PERIODE CHANGE</span>
+              <span class="stat-value stat-badge" id="statsChange">+0.00%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">TERTINGGI (HIGH)</span>
+              <span class="stat-value" id="statsHigh">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">TERENDAH (LOW)</span>
+              <span class="stat-value" id="statsLow">—</span>
+            </div>
+          </div>
+
+          <!-- Chart Canvas & Hover Tooltip -->
+          <div class="chart-wrapper">
+            <div
+              class="chart-tooltip"
+              id="chartTooltip"
+              style="display: none"
+            ></div>
+            <div class="tv-chart-container" id="tvChartContainer"></div>
+          </div>
+        </div>
+
+        <!-- SEMUA KURS / MULTI VIEW -->
         <div class="multi-view" id="multiView" hidden>
-          <div class="multi-label">SEMUA NILAI TUKAR</div>
+          <div class="multi-header-row">
+            <span class="multi-label">PERBANDINGAN MULTI-PASAR</span>
+            <input
+              type="text"
+              class="multi-search-input"
+              id="multiSearchInput"
+              placeholder="Filter mata uang / crypto..."
+            />
+          </div>
           <div class="multi-scroll">
             <table class="multi-table">
               <tbody id="multiBody"></tbody>
@@ -101,23 +254,32 @@
           </div>
         </div>
 
-        <!-- RIWAYAT -->
+        <!-- RIWAYAT TRANSAKSI -->
         <div class="history-box">
           <div class="history-header">
-            <span class="history-label">RIWAYAT</span>
-            <button class="clear-btn" id="clearHistBtn" hidden>HAPUS</button>
+            <span class="history-label">RIWAYAT AKTIVITAS</span>
+            <button class="clear-btn" id="clearHistBtn" hidden>
+              BERSIHKAN
+            </button>
           </div>
           <ul class="history-list" id="historyList"></ul>
         </div>
-
       </div>
 
+      <!-- FOOTER -->
       <footer>
-        <span>SUMBER DATA: EXCHANGERATE-API</span>
-        <span id="statusDot" class="dot dot--green"></span>
-        <span id="statusText">LIVE</span>
+        <div class="footer-left">
+          <span>DATA FEED: EXCHANGERATE + BINANCE + COINGECKO</span>
+        </div>
+        <div class="footer-right">
+          <span id="statusDot" class="dot dot--green"></span>
+          <span id="statusText">LIVE NETWORK</span>
+        </div>
       </footer>
     </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" hidden></div>
 
     <script type="module" src="js/app.js"></script>
   </body>
