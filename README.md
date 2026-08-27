@@ -1,25 +1,29 @@
-# 💱 KURS // CONVERTER
+# ⚡ KURS // WEB3 TRADING TERMINAL & CONVERTER
 
-Aplikasi konversi nilai tukar mata uang real-time dengan tampilan dan *vibe* Crypto CEX (Binance / OKX dark style).
+Aplikasi konversi mata uang global (Fiat + Crypto) dengan antarmuka **Web3 CEX Terminal (Binance / OKX / Bybit dark neon aesthetic)** dilengkapi grafik interaktif TradingView.
 
 🌐 **Live Demo:** [https://onlydayone.github.io/kurs-converter](https://onlydayone.github.io/kurs-converter)
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur Unggulan
 
-- 🌍 **30 Mata Uang Dunia** lengkap dengan bendera emoji & nama resmi negara.
-- 🔍 **Pencarian Cepat (Instant Filter)** di dropdown mata uang.
-- 🔄 **Konversi 2 Arah Otomatis** (misal: IDR → USD & USD → IDR sekaligus).
-- 📈 **Indikator Fluktuasi Kurs** (badge hijau ▲ NAIK / merah ▼ TURUN).
-- ⚡ **Preset Nominal Cepat** (10K, 100K, 1M, 10M, 100M).
-- ◈ **Mode Semua Kurs (Multi-Rates View)** — bandingkan 1 nominal ke 29 mata uang lainnya sekaligus.
-- ↺ **Riwayat Konversi Lokal** & tombol pakai ulang tanpa login (`localStorage`).
-- ★ **Pasangan Mata Uang Favorit** yang otomatis termuat saat membuka app.
-- 📱 **Mobile Friendly & Responsif Penuh** (hingga layar 360px).
+- 📈 **TradingView Interactive Lightweight Chart** — Grafik interaktif realtime area chart dengan timeframe `24H`, `7D`, `1M`, `1Y` dan statistik ribbon 24h (High, Low, Change).
+- 🪙 **Dukungan Crypto & Fiat Terpadu** — Konversi langsung antara aset kripto (BTC, ETH, SOL, BNB, USDT, XRP) dan 30+ mata uang fiat dunia.
+- ⚡ **Realtime Live Conversion** — Konversi otomatis saat mengetik dengan debouncing responsif.
+- 🔗 **Deep Linking & Sharing** — Bagikan link konversi spesifik melalui URL parameters (contoh: `?from=BTC&to=USD&amount=1`) serta dukungan Web Share API & Clipboard.
+- 📱 **PWA Ready (Progressive Web App)** — Dilengkapi `manifest.json` agar dapat diinstal langsung di layar utama smartphone atau desktop.
+- 🌐 **Multi-Source Aggregation (No API Key Required)**:
+  - **ExchangeRate-API** untuk data nilai tukar fiat global.
+  - **CoinGecko Simple Price API** untuk harga crypto realtime & persentase 24h.
+  - **Binance Public Spot API** untuk data candlestick/klines historis crypto.
+  - **Frankfurter API** untuk data historis time-series fiat.
+- ◈ **Multi-Rates Matrix dengan Quick Search** — Bandingkan 1 aset ke seluruh mata uang dan crypto sekaligus dengan fitur live search filter.
+- 🔍 **Smart Search Dropdown** — Filter cepat mata uang berdasarkan kode, nama negara, atau tag kategori `CRYPTO` / `FIAT`.
+- ↺ **Riwayat Transaksi & Pasangan Favorit** — Tersimpan otomatis di `localStorage` peramban.
 - ⌨️ **Pintasan Keyboard:**
   - <kbd>Enter</kbd> : Jalankan konversi
-  - <kbd>S</kbd> : Tukar posisi mata uang (Swap)
+  - <kbd>S</kbd> : Tukar posisi aset (Swap)
   - <kbd>C</kbd> : Salin hasil ke clipboard
 
 ---
@@ -28,26 +32,36 @@ Aplikasi konversi nilai tukar mata uang real-time dengan tampilan dan *vibe* Cry
 
 ```text
 kurs-converter/
-├── index.html          # Markup utama antarmuka pengguna
+├── index.html          # Markup terminal Web3 & Open Graph metadata
+├── manifest.json       # Konfigurasi Progressive Web App (PWA)
 ├── README.md           # Dokumentasi proyek
 ├── css/
-│   ├── base.css        # Variabel warna, reset, typography & status bar
-│   └── components.css  # Styling kartu, form, search dropdown, & hasil
+│   ├── base.css        # Variabel warna neon CEX, reset, typography & status bar
+│   └── components.css  # Styling kartu terminal, chart canvas, timeframe pills, toasts
 └── js/
-    ├── currencies.js   # Daftar 30 mata uang & helper info
-    ├── api.js          # Fetch API nilai tukar + cache handling
+    ├── currencies.js   # Database mata uang fiat + crypto top cap
+    ├── api.js          # Agregator data multi-API (ExchangeRate, CoinGecko, Binance, Frankfurter)
+    ├── chart.js        # Integrasi TradingView Lightweight Charts & 24h stats
     ├── storage.js      # Manajemen riwayat & pasangan favorit di localStorage
-    ├── ui.js           # Render UI, count-up animation, ticker & multi-rates
-    └── app.js          # Entry point utama & controller event listener
+    ├── ui.js           # Render UI, animasi angka neon, search filter, ticker & toast
+    └── app.js          # Main controller & event listeners
 ```
 
 ---
 
-## 🔌 Sumber Data API
+## 🚀 Cara Menjalankan Secara Lokal
 
-Menggunakan endpoint gratis publik dari [exchangerate-api.com](https://exchangerate-api.com) tanpa kebutuhan API key.
+Cukup jalankan static HTTP server pada folder proyek:
 
----
+```bash
+# Menggunakan Python 3
+python3 -m http.server 8080
+
+# Atau menggunakan Node / npx serve
+npx serve .
+```
+
+Buka peramban di `http://localhost:8080`.
 
 ## 🚀 Cara Menjalankan Lokal
 

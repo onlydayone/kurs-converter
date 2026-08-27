@@ -1,4 +1,5 @@
 const HISTORY_KEY = 'kurs_history';
+
 const FAV_KEY = 'kurs_fav';
 
 export function getHistory() {
